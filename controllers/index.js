@@ -50,7 +50,6 @@ const submitLogin = async (req, res) => {
   );
   // Check if user exist
 
-  req.alala = "stringed AAAAAAA";
   let user = await models.User.findOne({ where: { email: reqEmail } });
   // console.log(user, ": THIS IS USER");
   if (user == null || user == undefined) return res.send("invalid");
