@@ -1,37 +1,60 @@
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
+const fs = require("fs");
+const path = require("path");
+const Sequelize = require("sequelize");
+const env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
+const config = require(__dirname + "/../config/config.js")[env];
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.js')[env];
+
+const dotenv = require("dotenv");
+dotenv.config();
+
+console.log("this is the environment: ", env);
+
 const db = {};
 
+//
+
 let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+// change to prod
+if (env === "development") {
+  console.log(process.env.DATABASE);
+  sequelize = new Sequelize(
+    process.env.DATABASE,
+    process.env.USER,
+    process.env.PASSWORD,
+    {
+      host: process.env.HOST,
+      port: process.env.PORT,
+      dialect: "postgres",
+      dialectOption: {
+        ssl: true,
+        native: true
+      }
+    }
+  );
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  console.log(" else ssss");
+  sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    config
+  );
 }
 
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
-    return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
-  })
-  .forEach(file => {
-    const model = sequelize['import'](path.join(__dirname, file));
-    db[model.name] = model;
-  });
+const models = {
+  User: sequelize.import("./Users").User,
+  Profile: sequelize.import("./Users").Profile
+};
 
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
+Object.keys(models).forEach(key => {
+  if ("associate" in models[key]) {
+    models[key].associate(models);
   }
 });
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+db.models = models;
 
 module.exports = db;

@@ -4,6 +4,7 @@ const indexRoute = require("./routes/index");
 const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const db = require("./models");
 
 dotenv.config();
 const app = express();
@@ -15,6 +16,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // Parse Cookie header and populate req.cookies with an object keyed by the cookie names
 app.use(cookieParser());
+
+app.use("/", indexRoute);
+
 console.log(path.join(__dirname, "dist"));
 
 app.use(express.static(path.join(__dirname, "dist")));
@@ -22,8 +26,53 @@ app.get("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "dist", "index.html"));
 });
 
-app.use("/", indexRoute);
-
 const PORT = process.env.NODE_PORT || 4000;
 
-app.listen(PORT, () => console.log(`Server start on port ${PORT}`));
+const eraseDatabaseOnSync = true;
+
+db.sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
+  if (eraseDatabaseOnSync) {
+    createUsersWithMessages();
+  }
+  app.listen(PORT, () => console.log(`Server start on port ${PORT}`));
+});
+
+const createUsersWithMessages = async () => {
+  await db.models.User.create(
+    {
+      email: "abs@mail.com",
+      password: "qwerty123",
+      Profile: [
+        {
+          name: "React",
+          country: "Russia",
+          city: "Moscow",
+          email: "xyz@mail.io",
+          password: "qwerty123"
+        }
+      ]
+    },
+    {
+      include: [db.models.Profile]
+    }
+  );
+
+  await db.models.User.create(
+    {
+      email: "qwerty@gmail.com",
+      password: "1234567",
+      Profile: [
+        {
+          name: "Wut",
+          country: "Russia",
+          city: "Saint-Petersburg",
+          password: "123123",
+          email: "sample@email.com"
+        }
+      ]
+    },
+    {
+      include: [db.models.Profile]
+    }
+  );
+};
