@@ -21,10 +21,10 @@ app.use("/", indexRoute);
 
 console.log(path.join(__dirname, "dist"));
 
-app.use(express.static(path.join(__dirname, "dist")));
-app.get("*", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
-});
+// app.use(express.static(path.join(__dirname, "dist")));
+// app.get("*", (req, res) => {
+//   res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+// });
 
 const PORT = process.env.NODE_PORT || 4000;
 
