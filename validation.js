@@ -6,7 +6,7 @@ const Joi = require("@hapi/joi");
 const registerValidation = data => {
   // prettier-ignore
   const schema = {
-        name: Joi.string().min(6).required(),
+        register: Joi.boolean().invalid(false),    
         email: Joi.string().min(6).required().email(),
         password: Joi.string().min(6).required()
     }
