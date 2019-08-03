@@ -40,6 +40,7 @@ db.sequelize.sync({ force: eraseDatabaseOnSync }).then(async () => {
 const createUsersWithMessages = async () => {
   await db.models.User.create(
     {
+      id: "a0544680-3fd3-4309-96e4-a7f758e2f349",
       email: "abs@mail.com",
       password: "qwerty123",
       Profile: [
@@ -59,6 +60,7 @@ const createUsersWithMessages = async () => {
 
   await db.models.User.create(
     {
+      id: "7f09d7eb-e80d-4577-9660-cc9d6ef9d36b",
       email: "qwerty@gmail.com",
       password: "1234567",
       Profile: [
