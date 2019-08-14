@@ -5,8 +5,6 @@ const jwt = require("jsonwebtoken");
 
 const { registerValidation, loginValidation } = require("../validation");
 
-console.log(models);
-
 const submit = async (req, res) => {
   if (req.body.register === true) {
     console.log("It works register", req.body);
@@ -31,7 +29,6 @@ const submit = async (req, res) => {
         password: hashedPassword
       }).then(data => {
         console.log(data.dataValues.email, " USER EMAIL???");
-        // console.log(data);
       });
       res.send({ data: "success" });
     } catch (err) {
@@ -70,4 +67,16 @@ const submit = async (req, res) => {
   }
 };
 
-module.exports = { submit };
+const profile = async (req, res) => {
+  try {
+    console.log(req.query, " this is req body");
+    let user = await models.Profile.findOne({
+      where: { UserId: req.query.id }
+    });
+    res.send(user);
+  } catch (error) {
+    console.log(error, " THIS IS PROFILE ERROR BCK");
+  }
+};
+
+module.exports = { submit, profile };
