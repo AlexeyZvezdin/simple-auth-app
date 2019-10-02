@@ -2,7 +2,7 @@
 const Joi = require("@hapi/joi");
 
 // Register Validation
-
+// Вспомни новую легковесную альтернативу Джой
 const registerValidation = data => {
   // prettier-ignore
   const schema = {
