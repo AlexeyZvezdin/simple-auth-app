@@ -1,7 +1,6 @@
 const express = require("express");
 const path = require("path");
 const indexRoute = require("./routes/index");
-const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const db = require("./models");
@@ -9,17 +8,17 @@ const db = require("./models");
 dotenv.config();
 const app = express();
 
+// CORS FOR DEVELOPMENT PURPOSES
 app.use(cors());
 app.use(express.json());
 // The “extended” syntax allows for rich objects and arrays to be encoded
 //  into the URL-encoded format, allowing for a JSON-like experience with URL-encoded
 app.use(express.urlencoded({ extended: false }));
 // Parse Cookie header and populate req.cookies with an object keyed by the cookie names
-app.use(cookieParser());
 
 app.use("/", indexRoute);
 
-console.log(path.join(__dirname, "dist"));
+// console.log(path.join(__dirname, "dist"));
 
 // app.use(express.static(path.join(__dirname, "dist")));
 // app.get("*", (req, res) => {

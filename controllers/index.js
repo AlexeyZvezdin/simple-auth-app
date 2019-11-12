@@ -6,70 +6,69 @@ const jwt = require("jsonwebtoken");
 const { registerValidation, loginValidation } = require("../validation");
 
 const submit = async (req, res) => {
-  if (req.body.register === true) {
-    console.log("It works register", req.body);
-    const { error } = registerValidation(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+  switch (req.body.register) {
+    case true:
+      const { error } = registerValidation(req.body);
+      if (error) return res.status(400).send(error.details[0].message);
+      // Check if the user is already in the databasae
 
-    // Check if the user is already in the databasae
-
-    // prettier-ignore
-    const emailExist = await models.User.findOne({
+      // prettier-ignore
+      const emailExist = await models.User.findOne({
       where: { email: req.body.email }
     });
-    if (emailExist) return res.send("registered");
+      if (emailExist) return res.send("registered");
 
-    // Hash passwords and store hashed in DB?
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+      // Hash passwords and store hashed in DB?
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
-    try {
-      let user = models.User.create({
-        email: req.body.email,
-        password: hashedPassword
-      }).then(data => {
-        console.log(data.dataValues.email, " USER EMAIL???");
-      });
-      res.send({ data: "success" });
-    } catch (err) {
-      res.status(400).send(err);
-    }
-    // LOGIN
-  } else {
-    // LOGIN
-    const { error } = loginValidation(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-    console.log("CATCH ERROR :", error);
+      try {
+        let user = models.User.create({
+          email: req.body.email,
+          password: hashedPassword
+        }).then(data => {
+          console.log(data.dataValues.email, " USER EMAIL");
+        });
+        res.send({ data: "success" });
+      } catch (err) {
+        res.status(400).send(err);
+      }
 
-    const reqEmail = req.body.email;
+    default:
+      const { errorValidation } = loginValidation(req.body);
+      if (errorValidation)
+        return res.status(400).send(error.details[0].message);
 
-    // Check if user exist
+      const reqEmail = req.body.email;
 
-    let user = await models.User.findOne({ where: { email: reqEmail } });
-    // console.log(user, ": THIS IS USER");
-    if (user == null || user == undefined) return res.send("invalid");
-    // Check if password is correct
-    const validPass = bcrypt.compare(
-      req.body.password,
-      user.dataValues.password
-    );
-    // you can have great problems if you dont have return here
-    if (
-      user.dataValues.email != "abs@mail.com" &&
-      user.dataValues.email != "qwerty@gmail.com"
-    ) {
-      if (!validPass) return res.status(400).send("Invalid password");
-    }
+      // Check if user exist
+      let user = await models.User.findOne({ where: { email: reqEmail } });
+      if (user == null || user == undefined) return res.status(400);
+      // Check if password is correct
+      // Ignore default password for bcrypt comparsion
+      if (
+        user.dataValues.email != "abs@mail.com" &&
+        user.dataValues.email != "qwerty@gmail.com"
+      ) {
+        const validPass = await bcrypt.compare(
+          req.body.password,
+          user.dataValues.password
+        );
+        if (!validPass)
+          return res.status(400).send({
+            error: "No such Login or Password in preseted emails"
+          });
+      }
 
-    //  Create and assign a token
-    const token = jwt.sign({ id: user.id }, process.env.TOKEN_SECRET);
-    res.header("Authorization", token).send(token);
+      //  Create and assign a token
+      const token = jwt.sign({ id: user.id }, process.env.TOKEN_SECRET);
+      res.set("authorization", token).send(token);
   }
 };
 
 const profile = async (req, res) => {
+  console.log(req.body, " this is req QUERY \n \n");
   try {
-    console.log(req.query, " this is req body");
     let user = await models.Profile.findOne({
       where: { UserId: req.query.id }
     });

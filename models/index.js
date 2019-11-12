@@ -23,6 +23,7 @@ if (env === "development") {
     process.env.USER,
     process.env.PASSWORD,
     {
+      logging: false,
       host: process.env.HOST,
       port: process.env.PORT,
       dialect: "postgres",
