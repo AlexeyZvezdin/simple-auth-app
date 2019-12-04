@@ -1,15 +1,15 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
 function auth(req, res, next) {
-  const token = req.headers["x-access-token"] || req.headers["authorization"];
-  console.log(req.headers, " REQUEST TOKEN \n \n");
+  const token = req.headers['x-access-token'] || req.headers['authorization'];
+  console.log('THIS IS TOKEN AUTH ', token);
   if (!token) {
-    next("PleaseLogin");
+    res.status(401).send('PleaseLogin');
   }
 
   try {
     const DECODED = jwt.verify(token, process.env.TOKEN_SECRET);
-    console.log("DECODED ", DECODED);
+    console.log('DECODED ', DECODED);
     req.user = DECODED;
     next();
   } catch (err) {
